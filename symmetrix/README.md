@@ -110,3 +110,15 @@ and the energy is the total energy (`returnEnergyType="energy"` of openmm-ml's P
 interaction energy differs from it by a constant per composition). Without openmm-ml,
 `symmetrix.openmm_ml.create_mace_polar_force(model_file, atomic_numbers, ...)` returns the `openmm.PythonForce`.
 `test/test_openmm.py` compares it with `MACEPolar`.
+
+The models of `MACEFoundation` and `NequIPFoundation` are openmm-ml potentials too, with the same evaluators and
+neighbor lists:
+```
+potential = MLPotential("symmetrix-mace-foundation", modelPath="mace-omat-0-small-H-O.json")   # or "symmetrix-nequip-foundation"
+system = potential.createSystem(topology, precision="single")   # "double" (default), "mixed"; device="cpu"/"cuda"; skin=1.0
+```
+A topology with periodic box vectors is periodic in all three directions, and one without is an isolated molecule.
+`modelPath` may also be a model that `symmetrix_extract_mace` or `symmetrix_extract_nequip` accepts, which is extracted
+for the elements of the topology. The energy is the total energy, as for `symmetrix-mace-polar`. Without openmm-ml,
+`create_mace_foundation_force` and `create_nequip_foundation_force` of `symmetrix.openmm_ml` return the force.
+`test/test_openmm_foundation.py` compares them with `MACEFoundation` and `NequIPFoundation`.

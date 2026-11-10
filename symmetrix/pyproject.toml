@@ -41,6 +41,8 @@ symmetrix_extract_nequip = "symmetrix.cli.extract_nequip:main"
 
 [project.entry-points."openmmml.potentials"]
 symmetrix-mace-polar = "symmetrix_openmmml:SymmetrixMACEPolarImplFactory"
+symmetrix-mace-foundation = "symmetrix_openmmml:SymmetrixMACEFoundationImplFactory"
+symmetrix-nequip-foundation = "symmetrix_openmmml:SymmetrixNequIPFoundationImplFactory"
 
 [[tool.dynamic-metadata]]
 provider = "scikit_build_core.metadata.regex"
