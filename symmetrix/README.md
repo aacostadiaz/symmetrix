@@ -85,3 +85,28 @@ elsewhere pass the architecture, e.g. `pip install ... -C cmake.define.CMAKE_CUD
 from symmetrix.experimental import NequIPFoundation
 atoms.calc = NequIPFoundation("NequIP-OAM-L-0.1-H-O.json", device="cuda", dtype="float64")
 ```
+`MACEPolar` evaluates the PolarMACE models of `pair_style symmetrix/mace/polar` and `symmetrix/mace/polar/cuda`:
+```
+from symmetrix.experimental import MACEPolar
+atoms.calc = MACEPolar("polar-m-H-O.json", device="cuda")   # dtype "float32" or "float32-mixed"; or device="cpu" (float64)
+atoms.info.update(charge=-1, spin=1)                       # total charge and spin multiplicity (defaults 0 and 1)
+```
+with the arithmetic of the CPU and GPU pair styles respectively and the electrostatics of their `direct` option: k-space
+sums over the model's k-vectors, which is what PyTorch computes. The cell must be periodic in all three directions
+(box molecules), and the cost of the sums grows with the number of atoms times the cell volume. `charge` and `spin`
+arguments set the values used when `atoms.info` has none. The GPU evaluator needs a build that found CUDA (Kokkos is not
+needed) and supports the tensor products of MACE-POLAR-1 only.
+`test/test_mace_polar.py` compares both with PyTorch for the model in `$SYMMETRIX_POLAR_MODEL`.
+
+In OpenMM (8.5 or later, `pip install ".[openmm]"`), the same evaluators are an [openmm-ml](https://github.com/openmm/openmm-ml)
+potential:
+```
+from openmmml import MLPotential
+potential = MLPotential("symmetrix-mace-polar", modelPath="polar-m-H-O.json")   # or a PyTorch PolarMACE model
+system = potential.createSystem(topology, charge=0, multiplicity=1, precision="single")   # "double" (CPU), "mixed"; device="cpu"/"cuda"
+```
+A PyTorch model is extracted for the elements of the topology into openmm-ml's cache. The topology must be periodic,
+and the energy is the total energy (`returnEnergyType="energy"` of openmm-ml's PyTorch MACE potentials, whose default
+interaction energy differs from it by a constant per composition). Without openmm-ml,
+`symmetrix.openmm_ml.create_mace_polar_force(model_file, atomic_numbers, ...)` returns the `openmm.PythonForce`.
+`test/test_openmm.py` compares it with `MACEPolar`.

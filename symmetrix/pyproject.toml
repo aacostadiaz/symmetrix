@@ -6,7 +6,7 @@ build-backend = "scikit_build_core.build"
 cmake.version = ">=3.27"
 build-dir = "build"
 wheel.exclude = ["lib/", "include/"]
-wheel.packages = ["source/symmetrix"]
+wheel.packages = ["source/symmetrix", "source/symmetrix_openmmml"]
 
 [project]
 name = "symmetrix"
@@ -30,10 +30,17 @@ nequip = [
 test = [
     "pytest",
 ]
+openmm = [
+    "openmm>=8.5",
+    "openmmml>=1.8",
+]
 
 [project.scripts]
 symmetrix_extract_mace = "symmetrix.cli.extract_mace:main"
 symmetrix_extract_nequip = "symmetrix.cli.extract_nequip:main"
+
+[project.entry-points."openmmml.potentials"]
+symmetrix-mace-polar = "symmetrix_openmmml:SymmetrixMACEPolarImplFactory"
 
 [[tool.dynamic-metadata]]
 provider = "scikit_build_core.metadata.regex"
